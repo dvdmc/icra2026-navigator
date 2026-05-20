@@ -691,3 +691,51 @@ ul { list-style: none; }
   .print-plan-conflict .print-plan-room { background: #fdd; color: #900; }
   .print-plan-title { line-height: 1.4; }
 }
+
+/* ── Mobile / responsive ─────────────────────────────────────── */
+.btn-filters { display: none; }
+
+@media (max-width: 700px) {
+  /* Header */
+  .site-header { padding: 0 12px; gap: 8px; }
+  .header-sub  { display: none; }
+  .model-pill  { display: none; }
+  .btn-filters {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    background: rgba(255,255,255,.2);
+    border: 1px solid rgba(255,255,255,.4);
+    border-radius: var(--radius);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background .15s;
+  }
+  .btn-filters:hover { background: rgba(255,255,255,.3); }
+
+  /* Sidebar becomes a fixed left drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -105%;
+    width: min(300px, 90vw);
+    height: 100vh;
+    max-height: 100vh;
+    z-index: 201;
+    transition: left .25s ease;
+    box-shadow: var(--shadow-lg);
+    padding-top: 60px;
+  }
+  .sidebar.open { left: 0; }
+
+  /* Main takes full width */
+  .main-content { min-width: 0; padding: 12px; }
+
+  /* Paper cards: tighter on mobile */
+  .paper-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .paper-badge  { align-self: flex-start; }
+  .paper-actions { flex-wrap: wrap; gap: 6px; }
+}

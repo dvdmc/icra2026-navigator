@@ -617,6 +617,18 @@ function wireEvents() {
     }
   });
 
+  // Filters drawer (mobile)
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOverlay = $('sidebar-overlay');
+  $('filters-btn').addEventListener('click', () => {
+    sidebar.classList.add('open');
+    sidebarOverlay.classList.remove('hidden');
+  });
+  sidebarOverlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    sidebarOverlay.classList.add('hidden');
+  });
+
   // Bookmarks panel
   $('bookmarks-btn').addEventListener('click', openBookmarks);
   $('close-bm-btn').addEventListener('click', closeBookmarks);
