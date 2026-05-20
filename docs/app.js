@@ -345,49 +345,128 @@ function toggleBookmark(paperId) {
   renderBookmarks();
 }
 
+function sortedBookmarks() {
+  return S.papers
+    .filter(p => S.bookmarks.has(p.id))
+    .sort((a, b) => {
+      const dd = (DAY_ORDER[a.day] ?? 9) - (DAY_ORDER[b.day] ?? 9);
+      if (dd !== 0) return dd;
+      const td = (a.time ?? '').localeCompare(b.time ?? '');
+      if (td !== 0) return td;
+      return (a.session_id ?? '').localeCompare(b.session_id ?? '');
+    });
+}
+
+// Returns Map<day, Map<timeSlot, paper[]>>
+function buildSchedule(papers) {
+  const days = new Map();
+  for (const p of papers) {
+    const day = p.day ?? 'Unknown';
+    const slot = p.time ?? 'TBD';
+    if (!days.has(day)) days.set(day, new Map());
+    const slots = days.get(day);
+    if (!slots.has(slot)) slots.set(slot, []);
+    slots.get(slot).push(p);
+  }
+  return days;
+}
+
 function renderBookmarks() {
   const list = $('bookmarks-list');
   if (S.bookmarks.size === 0) {
     list.innerHTML = '<p class="hint">No bookmarks yet. Click ☆ on any paper.</p>';
-    return;
-  }
-
-  const bmPapers = S.papers
-    .filter(p => S.bookmarks.has(p.id))
-    .sort((a, b) => {
-      const dd = (DAY_ORDER[a.day] ?? 9) - (DAY_ORDER[b.day] ?? 9);
-      return dd !== 0 ? dd : (a.time ?? '').localeCompare(b.time ?? '');
-    });
-
-  list.innerHTML = bmPapers.map(p => `
+  } else {
+    const bmPapers = sortedBookmarks();
+    list.innerHTML = bmPapers.map(p => `
 <div class="bm-item">
   <div class="bm-item-meta">${esc(p.id)} · ${esc(p.day?.slice(0,3) ?? '')} ${esc(p.time ?? '')} · ${esc(p.room ?? '')}</div>
   <div class="bm-item-title">${esc(p.title)}</div>
   <div class="bm-item-authors">${p.authors.map(a => esc(a.name)).join(', ')}</div>
   <button class="bm-remove" data-id="${esc(p.id)}" title="Remove">✕</button>
 </div>`).join('');
+  }
+  renderPlan();
+}
+
+function renderPlan() {
+  const el = $('plan-view');
+  if (S.bookmarks.size === 0) {
+    el.innerHTML = '<p class="hint">No bookmarks yet. Click ☆ on any paper.</p>';
+    return;
+  }
+  el.innerHTML = planHTML(sortedBookmarks(), false);
+}
+
+function planHTML(papers, forPrint) {
+  const schedule = buildSchedule(papers);
+  const sortedDays = [...schedule.keys()].sort((a, b) => (DAY_ORDER[a] ?? 9) - (DAY_ORDER[b] ?? 9));
+  const dayClass  = forPrint ? 'print-plan-day'      : 'plan-day';
+  const slotClass = forPrint ? 'print-plan-slot'     : 'plan-slot';
+  const confClass = forPrint ? 'print-plan-conflict' : 'plan-conflict';
+  const entryClass= forPrint ? 'print-plan-entry'    : 'plan-entry';
+  const roomClass = forPrint ? 'print-plan-room'     : 'plan-room';
+  const titleClass= forPrint ? 'print-plan-title'    : 'plan-title';
+
+  const html = [];
+  for (const day of sortedDays) {
+    html.push(`<div class="${dayClass}">${esc(day)}</div>`);
+    const slots = schedule.get(day);
+    const sortedSlots = [...slots.keys()].sort();
+    for (const slot of sortedSlots) {
+      const papers = slots.get(slot);
+      const rooms = new Set(papers.map(p => p.room ?? ''));
+      const conflict = rooms.size > 1;
+      html.push(`<div class="${slotClass}${conflict ? ' ' + confClass : ''}">`);
+      html.push(`<div class="plan-slot-time">${conflict ? '⚠ ' : ''}${esc(slot)}</div>`);
+      for (const p of papers) {
+        html.push(`<div class="${entryClass}">
+  <span class="${roomClass}">${esc(p.room ?? '—')}</span>
+  <span class="${titleClass}">${esc(p.title)}</span>
+</div>`);
+      }
+      html.push(`</div>`);
+    }
+  }
+  return html.join('');
 }
 
 // ── PDF export ────────────────────────────────────────────────────────────────
 function exportPDF() {
-  const bmPapers = S.papers
-    .filter(p => S.bookmarks.has(p.id))
-    .sort((a, b) => {
-      const dd = (DAY_ORDER[a.day] ?? 9) - (DAY_ORDER[b.day] ?? 9);
-      return dd !== 0 ? dd : (a.time ?? '').localeCompare(b.time ?? '');
-    });
+  const showAbstracts = document.getElementById('pdf-abstracts').checked;
+  const bmPapers = sortedBookmarks();
 
-  const printArea = $('print-papers');
-  printArea.innerHTML = bmPapers.map(p => `
+  // Plan summary page
+  $('print-plan').innerHTML =
+    `<h2 class="print-plan-heading">Schedule Overview</h2>` + planHTML(bmPapers, true);
+
+  // Paper details grouped chronologically
+  const html = [];
+  let lastDay = null, lastSlot = null;
+  for (const p of bmPapers) {
+    const day = p.day ?? 'Unknown';
+    const slot = p.time ?? '';
+    const slotLabel = slot ? `${day},${slot}` : day;
+
+    if (day !== lastDay) {
+      html.push(`<div class="print-day-header">${esc(day)}</div>`);
+      lastDay = day;
+      lastSlot = null;
+    }
+    if (slotLabel !== lastSlot) {
+      html.push(`<div class="print-slot-header">${esc(slot)}${p.room ? ' · ' + esc(p.room) : ''}</div>`);
+      lastSlot = slotLabel;
+    }
+    html.push(`
 <div class="print-paper">
-  <div class="print-paper-id">${esc(p.id)}</div>
-  <div class="print-paper-meta">${esc(p.session_type)} · ${esc(p.day ?? '')} ${esc(p.time ?? '')} · ${esc(p.room ?? '')}</div>
+  <div class="print-paper-meta">${esc(p.session_type)}${p.session_title ? ' · ' + esc(p.session_title) : ''}</div>
   <div class="print-paper-title">${esc(p.title)}</div>
-  <div class="print-paper-authors">${p.authors.map(a => `${esc(a.name)} (${esc(a.affiliation)})`).join('; ')}</div>
-  ${p.keywords.length ? `<div class="print-paper-kws">Keywords: ${p.keywords.map(esc).join(', ')}</div>` : ''}
-  ${p.abstract ? `<div class="print-paper-abstract">${esc(p.abstract)}</div>` : ''}
-</div>`).join('');
+  <div class="print-paper-authors">${p.authors.map(a => esc(a.name) + (a.affiliation ? ` (${esc(a.affiliation)})` : '')).join('; ')}</div>
+  ${p.keywords.length ? `<div class="print-paper-kws">${p.keywords.map(esc).join(', ')}</div>` : ''}
+  ${showAbstracts && p.abstract ? `<div class="print-paper-abstract">${esc(p.abstract)}</div>` : ''}
+</div>`);
+  }
 
+  $('print-papers').innerHTML = html.join('');
   window.print();
 }
 
@@ -547,6 +626,17 @@ function wireEvents() {
   $('bookmarks-list').addEventListener('click', e => {
     const btn = e.target.closest('.bm-remove');
     if (btn) toggleBookmark(btn.dataset.id);
+  });
+
+  // Plan / List tab switching
+  document.querySelectorAll('.bm-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.bm-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const isPlan = tab.dataset.tab === 'plan';
+      $('bookmarks-list').classList.toggle('hidden', isPlan);
+      $('plan-view').classList.toggle('hidden', !isPlan);
+    });
   });
 
   // Clear all

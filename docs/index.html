@@ -108,13 +108,27 @@
   <!-- ── Bookmarks panel ───────────────────────────────────────── -->
   <div id="bookmarks-panel" class="bookmarks-panel hidden" role="dialog" aria-label="Bookmarks">
     <div class="bm-header">
-      <h2>★ Bookmarks <span id="bm-count">0</span></h2>
-      <div class="bm-actions">
-        <button id="export-pdf-btn" class="btn-primary">Export PDF</button>
+      <div class="bm-header-top">
+        <h2>★ Bookmarks <span id="bm-count">0</span></h2>
         <button id="close-bm-btn" class="btn-icon" aria-label="Close">✕</button>
+      </div>
+      <div class="bm-header-bottom">
+        <div class="bm-tabs">
+          <button class="bm-tab active" data-tab="list">List</button>
+          <button class="bm-tab" data-tab="plan">Plan</button>
+        </div>
+        <div class="bm-actions">
+          <label class="bm-abstract-toggle">
+            <input type="checkbox" id="pdf-abstracts"> Abstracts
+          </label>
+          <button id="export-pdf-btn" class="btn-primary">Export PDF</button>
+        </div>
       </div>
     </div>
     <div id="bookmarks-list" class="bm-list">
+      <p class="hint">No bookmarks yet. Click ☆ on any paper.</p>
+    </div>
+    <div id="plan-view" class="bm-list hidden">
       <p class="hint">No bookmarks yet. Click ☆ on any paper.</p>
     </div>
   </div>
@@ -124,6 +138,7 @@
   <div id="print-view" class="print-view">
     <h1>ICRA 2026 — My Program</h1>
     <p class="print-meta">Vienna, Austria · June 1–5, 2026</p>
+    <div id="print-plan"></div>
     <div id="print-papers"></div>
   </div>
 

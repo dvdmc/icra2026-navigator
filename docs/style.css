@@ -2,14 +2,16 @@
    ICRA 2026 Program Browser — Stylesheet
    ═══════════════════════════════════════════════════════════ */
 
+.hidden { display: none !important; }
+
 :root {
   --bg:         #f0f2f5;
   --surface:    #ffffff;
   --border:     #e0e0e0;
   --text:       #212121;
   --text-sec:   #6b7280;
-  --primary:    #1a56db;
-  --primary-dk: #1240a0;
+  --primary:    #c1393e;
+  --primary-dk: #9b2226;
   --gold:       #f59e0b;
   --gold-bg:    #fffbeb;
   --sidebar-w:  280px;
@@ -471,15 +473,89 @@ ul { list-style: none; }
 
 .bm-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
+  flex-direction: column;
+  padding: 14px 20px 0;
   border-bottom: 1px solid var(--border);
-  gap: 12px;
+  gap: 8px;
   flex-shrink: 0;
 }
+.bm-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 .bm-header h2 { font-size: 16px; font-weight: 700; }
-.bm-actions { display: flex; align-items: center; gap: 8px; }
+.bm-header-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bm-tabs { display: flex; gap: 4px; }
+.bm-tab {
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: var(--bg);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-sec);
+  transition: all .15s;
+}
+.bm-tab.active {
+  background: #fff;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.bm-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.bm-abstract-toggle { display: flex; align-items: center; gap: 4px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+
+/* ── Plan view ───────────────────────────────────────────────── */
+.plan-day {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 12px 0 4px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--primary);
+}
+.plan-slot {
+  border-left: 3px solid var(--border);
+  padding: 6px 0 6px 10px;
+  margin-bottom: 6px;
+}
+.plan-conflict {
+  border-left-color: #dc2626;
+  background: #fff5f5;
+  border-radius: 0 4px 4px 0;
+}
+.plan-slot-time {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+}
+.plan-conflict .plan-slot-time { color: #dc2626; }
+.plan-entry {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+.plan-room {
+  background: #e5e7eb;
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.plan-conflict .plan-room { background: #fee2e2; color: #b91c1c; }
+.plan-title { color: var(--text); line-height: 1.4; }
 
 .btn-primary {
   padding: 7px 14px;
@@ -540,24 +616,78 @@ ul { list-style: none; }
 .print-view { display: none; }
 
 @media print {
+  @page { size: portrait; margin: 15mm 12mm; }
+
   body > *:not(.print-view) { display: none !important; }
   .print-view {
     display: block;
-    font-family: Georgia, serif;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
     color: #000;
-    padding: 20px;
   }
-  .print-view h1 { font-size: 22px; margin-bottom: 4px; }
-  .print-meta { color: #555; margin-bottom: 24px; }
+  .print-view h1 { font-size: 20px; margin: 0 0 2px; }
+  .print-meta { color: #555; font-size: 12px; margin-bottom: 16px; }
+
+  .print-day-header {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 20px 0 4px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #000;
+    page-break-after: avoid;
+  }
+  .print-slot-header {
+    font-size: 12px;
+    font-weight: bold;
+    color: #444;
+    margin: 10px 0 2px;
+    page-break-after: avoid;
+  }
   .print-paper {
+    break-inside: avoid;
     page-break-inside: avoid;
-    border-top: 1px solid #ccc;
-    padding: 14px 0;
+    border-left: 3px solid #aaa;
+    padding: 6px 0 6px 8px;
+    margin-bottom: 6px;
   }
-  .print-paper-id { font-family: monospace; font-size: 12px; color: #555; }
-  .print-paper-meta { font-size: 12px; color: #555; margin-bottom: 4px; }
-  .print-paper-title { font-size: 16px; font-weight: bold; margin-bottom: 6px; }
-  .print-paper-authors { font-size: 13px; color: #333; margin-bottom: 6px; }
-  .print-paper-kws { font-size: 12px; color: #555; margin-bottom: 8px; }
-  .print-paper-abstract { font-size: 13px; line-height: 1.6; }
+  .print-paper-meta { font-size: 11px; color: #666; margin-bottom: 2px; }
+  .print-paper-title { font-size: 13px; font-weight: bold; margin-bottom: 3px; }
+  .print-paper-authors { font-size: 11px; color: #333; margin-bottom: 3px; }
+  .print-paper-kws { font-size: 10px; color: #666; margin-bottom: 4px; font-style: italic; }
+  .print-paper-abstract { font-size: 11px; line-height: 1.5; color: #222; }
+
+  /* Plan summary section */
+  .print-plan-heading {
+    font-size: 15px;
+    font-weight: bold;
+    margin: 0 0 8px;
+  }
+  #print-plan { margin-bottom: 20px; }
+  #print-papers { border-top: 2px solid #000; padding-top: 16px; }
+  .print-plan-day {
+    font-size: 13px;
+    font-weight: bold;
+    margin: 12px 0 4px;
+    border-bottom: 1px solid #000;
+  }
+  .print-plan-slot {
+    border-left: 3px solid #bbb;
+    padding: 4px 0 4px 8px;
+    margin-bottom: 4px;
+  }
+  .print-plan-conflict { border-left-color: #c00; }
+  .plan-slot-time { font-size: 11px; font-weight: bold; color: #333; margin-bottom: 3px; }
+  .print-plan-conflict .plan-slot-time { color: #c00; }
+  .print-plan-entry { display: flex; gap: 6px; align-items: baseline; font-size: 11px; margin-bottom: 2px; }
+  .print-plan-room {
+    background: #eee;
+    border-radius: 2px;
+    padding: 1px 4px;
+    font-size: 10px;
+    font-weight: bold;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .print-plan-conflict .print-plan-room { background: #fdd; color: #900; }
+  .print-plan-title { line-height: 1.4; }
 }
