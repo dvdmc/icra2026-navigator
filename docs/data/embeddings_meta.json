@@ -1,0 +1,6 @@
+{
+  "model": "all-MiniLM-L6-v2",
+  "n_papers": 2952,
+  "dim": 384,
+  "size_mb": 4.32
+}

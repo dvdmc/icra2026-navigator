@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ICRA 2026 Program Browser</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-brand">
+      <span class="header-title">ICRA 2026</span>
+      <span class="header-sub">Vienna · June 1–5</span>
+    </div>
+    <div class="header-right">
+      <span id="model-status" class="model-pill" title="Semantic search model status">
+        <span class="model-dot"></span><span class="model-label">Loading model…</span>
+      </span>
+      <button id="bookmarks-btn" class="btn-bookmarks" aria-label="Open bookmarks">
+        ★ Bookmarks <span id="bookmark-count" class="badge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- ── Sidebar ──────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+
+      <div class="filter-section">
+        <h3 class="filter-label">Day</h3>
+        <div class="day-chips" id="day-chips">
+          <button class="chip active" data-day="">All</button>
+          <button class="chip" data-day="Sunday">Sun</button>
+          <button class="chip" data-day="Monday">Mon</button>
+          <button class="chip" data-day="Tuesday">Tue</button>
+          <button class="chip" data-day="Wednesday">Wed</button>
+          <button class="chip" data-day="Thursday">Thu</button>
+          <button class="chip" data-day="Friday">Fri</button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <h3 class="filter-label">Session Type</h3>
+        <div id="type-filters" class="checkbox-list"></div>
+      </div>
+
+      <div class="filter-section">
+        <h3 class="filter-label">
+          Keywords
+          <span class="badge-soft" title="Soft filter: matching papers float to the top; others remain visible">soft</span>
+        </h3>
+        <input type="text" id="keyword-input" class="filter-input"
+               placeholder="Type to add keyword…" autocomplete="off">
+        <ul id="keyword-dropdown" class="dropdown hidden" role="listbox"></ul>
+        <div id="keyword-tags" class="tag-row"></div>
+      </div>
+
+      <div class="filter-section">
+        <h3 class="filter-label">Author</h3>
+        <input type="text" id="author-input" class="filter-input" placeholder="Author name…">
+      </div>
+
+      <div class="filter-section">
+        <h3 class="filter-label">Text search</h3>
+        <input type="text" id="text-input" class="filter-input" placeholder="Title or abstract…">
+      </div>
+
+      <div class="filter-section">
+        <h3 class="filter-label">
+          Semantic search
+          <span class="badge-soft" title="Soft filter: re-ranks by meaning similarity">soft</span>
+        </h3>
+        <textarea id="semantic-input" class="filter-input semantic-ta" rows="3"
+                  placeholder="Describe what you're looking for…"></textarea>
+        <button id="semantic-btn" class="btn-secondary" disabled>Search</button>
+        <p id="semantic-hint" class="hint"></p>
+      </div>
+
+      <button id="clear-btn" class="btn-clear">Clear all filters</button>
+
+    </aside>
+
+    <!-- ── Main content ──────────────────────────────────────── -->
+    <main class="main-content">
+      <div class="results-bar">
+        <span id="results-count" class="results-count">Loading…</span>
+        <label class="sort-label">
+          Sort
+          <select id="sort-select" class="sort-select">
+            <option value="relevance">Relevance</option>
+            <option value="time" selected>Day &amp; Time</option>
+            <option value="title">Title A–Z</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="papers-list" class="papers-list">
+        <div class="loading-state">Loading program data…</div>
+      </div>
+
+      <button id="load-more-btn" class="btn-load-more hidden">Show 50 more</button>
+    </main>
+
+  </div>
+
+  <!-- ── Bookmarks panel ───────────────────────────────────────── -->
+  <div id="bookmarks-panel" class="bookmarks-panel hidden" role="dialog" aria-label="Bookmarks">
+    <div class="bm-header">
+      <h2>★ Bookmarks <span id="bm-count">0</span></h2>
+      <div class="bm-actions">
+        <button id="export-pdf-btn" class="btn-primary">Export PDF</button>
+        <button id="close-bm-btn" class="btn-icon" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div id="bookmarks-list" class="bm-list">
+      <p class="hint">No bookmarks yet. Click ☆ on any paper.</p>
+    </div>
+  </div>
+  <div id="bm-overlay" class="bm-overlay hidden"></div>
+
+  <!-- ── Print view (hidden except during print) ───────────────── -->
+  <div id="print-view" class="print-view">
+    <h1>ICRA 2026 — My Program</h1>
+    <p class="print-meta">Vienna, Austria · June 1–5, 2026</p>
+    <div id="print-papers"></div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+memory/
+scrape/.venv/
+scrape/__pycache__/
+*.pyc
